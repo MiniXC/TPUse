@@ -1,0 +1,17 @@
+general:
+  pt_version: '1.13'
+  create_missing: false
+  create_retry: true
+  extension: 'local'
+v2:
+  num_vms: 5
+  cores_per_vm: 8
+  zone: 'us-central1-b'
+v3:
+  num_vms: 5
+  cores_per_vm: 8
+  zone: 'us-central1-b'
+v4:
+  num_vms: 4
+  cores_per_vm: 16
+  zone: 'us-central1-b'
