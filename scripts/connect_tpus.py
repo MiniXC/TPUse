@@ -65,13 +65,14 @@ def check_tpus(
                 f"Missing TPUs: {[f'v{version}-{i}' for i in missing_numbers]}, creating them now"
             )
             for number in missing_numbers:
-                if version == 4:
-                    version_str = f"tpu-vm-v4-pt-{pt_version}"
-                else:
-                    version_str = f"tpu-vm-pt-{pt_version}"
+                # if version == 4:
+                #     version_str = f"tpu-vm-v4-pt-{pt_version}"
+                # else:
+                version_str = f"tpu-vm-pt-{pt_version}"
                 name = f"v{version}-{number}"
                 accelerator_type = f"v{version}-{num_cores}"
                 command = f"gcloud compute tpus tpu-vm create {name} --zone={zone} --accelerator-type={accelerator_type} --version={version_str}"
+                print(f"Creating TPU: {command}")
                 run_create_command(command)
         final_tpus = []
         for i, (tpu, tpu_type, tpu_state) in enumerate(tpus):
@@ -130,11 +131,11 @@ def setup_external_ips(zone: str, extension: str) -> None:
         )
     p = subprocess.Popen(
         f"sudo bash -c 'echo \"# {zone} TPUs\" >> /etc/hosts'",
-        shell=True,
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
+        shell=True,
     )
-    _, err = p.communicate(sudo_password.encode(), timeout=5)
+    _, err = p.communicate(sudo_password.encode(), timeout=30)
     if err:
         print(f"Error adding comment to /etc/hosts: {err.decode('utf-8')}")
     for name, ip in results:
@@ -146,7 +147,7 @@ def setup_external_ips(zone: str, extension: str) -> None:
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
         )
-        _, err = p.communicate(sudo_password.encode(), timeout=5)
+        _, err = p.communicate(sudo_password.encode(), timeout=30)
         if err:
             print(f"Error removing {name} from /etc/hosts: {err.decode('utf-8')}")
         # add to /etc/hosts
@@ -157,7 +158,7 @@ def setup_external_ips(zone: str, extension: str) -> None:
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
         )
-        _, err = p.communicate(sudo_password.encode(), timeout=5)
+        _, err = p.communicate(sudo_password.encode(), timeout=30)
         if err:
             print(f"Error adding {name} to /etc/hosts: {err.decode('utf-8')}")
 

@@ -5,20 +5,10 @@ from dotenv import load_dotenv
 from pyinfra import host
 from pyinfra.operations import apt, server, files, git, pip
 from pyinfra.facts.files import File
-from pyinfra.facts.server import Home
+from pyinfra.facts.server import Home, Command
 
 load_dotenv()
 homedir = host.get_fact(Home)
-
-# AUDIO DEPENDENCIES
-apt.packages(
-    name="Install sox, ffmpeg, libcairo2, libcairo2-dev, libsndfile1-dev",
-    packages=["sox", "ffmpeg", "libcairo2", "libcairo2-dev", "libsndfile1-dev"],
-    update=True,
-    cache_time=3600,
-    _sudo=True,
-)
-
 
 # RAM POLICE
 ram_police_host = host.get_fact(File, f"{homedir}/ram_police.sh")
@@ -87,6 +77,7 @@ files.block(
             'export HF_HOME="/dev/shm/hf"',
             'export HF_DATASETS_PATH="/dev/shm/hf_datasets"',
             'export HF_DATASETS_CACHE="/dev/shm/hf_cache"',
+            'export TOKENIZERS_PARALLELISM="false"',
             'alias python3="/usr/bin/python3"',
             'alias python="/usr/bin/python3"',
             'alias pip3="/usr/bin/pip3"',
@@ -96,8 +87,104 @@ files.block(
 )
 
 
-# TORCHAUDIO
-pip.packages(
-    name="Install torchaudio",
-    packages=["torchaudio==0.13.1"],
+server.shell(
+    name="Source .bashrc",
+    commands=[
+        f". {homedir}/.bashrc",
+    ],
 )
+
+
+# TORCHAUDIO
+apt.packages(
+    name="Install sox, ffmpeg, libcairo2, libcairo2-dev, libsndfile1-dev",
+    packages=["sox", "ffmpeg", "libcairo2", "libcairo2-dev", "libsndfile1-dev"],
+    update=True,
+    cache_time=3600,
+    _sudo=True,
+)
+if os.getenv("PYTORCH_VERSION") == "1.10":
+    pip.packages(
+        name="Install torchaudio",
+        packages=["torchaudio==0.10.0"],
+        extra_install_args="--no-deps",
+    )
+elif os.getenv("PYTORCH_VERSION") == "1.11":
+    pip.packages(
+        name="Install torchaudio",
+        packages=["torchaudio==0.11.0"],
+        extra_install_args="--no-deps",
+    )
+elif os.getenv("PYTORCH_VERSION") == "1.12":
+    pip.packages(
+        name="Install torchaudio",
+        packages=["torchaudio==0.12.0"],
+        extra_install_args="--no-deps",
+    )
+elif os.getenv("PYTORCH_VERSION") == "1.13":
+    pip.packages(
+        name="Install torchaudio",
+        packages=["torchaudio==0.13.0"],
+        extra_install_args="--no-deps",
+    )
+elif os.getenv("PYTORCH_VERSION") == "2.0":
+    pip.packages(
+        name="Install torchaudio",
+        packages=["torchaudio==2.0.0"],
+        extra_install_args="--no-deps",
+    )
+elif os.getenv("PYTORCH_VERSION") == "2.1":
+    pip.packages(
+        name="Install torchaudio",
+        packages=["torchaudio==2.1.0"],
+        extra_install_args="--no-deps",
+    )
+else:
+    raise ValueError("Invalid pytorch version")
+
+# TORCHVISION
+apt.packages(
+    name="Install libjpeg-dev, zlib1g-dev",
+    packages=["libjpeg-dev", "zlib1g-dev"],
+    update=True,
+    cache_time=3600,
+    _sudo=True,
+)
+if os.getenv("PYTORCH_VERSION") == "1.10":
+    pip.packages(
+        name="Install torchvision",
+        packages=["torchvision==0.11.0"],
+        extra_install_args="--no-deps",
+    )
+elif os.getenv("PYTORCH_VERSION") == "1.11":
+    pip.packages(
+        name="Install torchvision",
+        packages=["torchvision==0.12.0"],
+        extra_install_args="--no-deps",
+    )
+elif os.getenv("PYTORCH_VERSION") == "1.12":
+    pip.packages(
+        name="Install torchvision",
+        packages=["torchvision==0.13.0"],
+        extra_install_args="--no-deps",
+    )
+elif os.getenv("PYTORCH_VERSION") == "1.13":
+    pip.packages(
+        name="Install torchvision",
+        packages=["torchvision==0.14.0"],
+        extra_install_args="--no-deps",
+    )
+elif os.getenv("PYTORCH_VERSION") == "2.0":
+    pip.packages(
+        name="Install torchvision",
+        packages=["torchvision==0.15.1"],
+        extra_install_args="--no-deps",
+    )
+elif os.getenv("PYTORCH_VERSION") == "2.1":
+    pip.packages(
+        name="Install torchvision",
+        packages=["torchvision==0.16.0"],
+        extra_install_args="--no-deps",
+    )
+else:
+    raise ValueError("Invalid pytorch version")
